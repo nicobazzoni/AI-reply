@@ -33,7 +33,7 @@ const App = () => {
           {user && (
             <button
               onClick={logOut}
-              className="text-blue-500 hover:underline"
+              className="text-blue-500 hover:underline signout "
             >
               Sign Out
             </button>
