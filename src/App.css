@@ -40,3 +40,43 @@
 .read-the-docs {
   color: #888;
 }
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+}
+
+li{
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+
+}
+
+button{
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+
+}
+
+p {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+}
+
+.home-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.home-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+.home-container p {
+  margin-top: 1rem;
+}

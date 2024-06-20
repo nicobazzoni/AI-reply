@@ -37,13 +37,15 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center  justify-center min-h-screen">
       {user ? (
-        <div>
-          <p>Welcome, {user.displayName}!</p>
+        <div className='space-y-2'>
+           <p className='bg-slate-200 p-1 font-semibold rounded m-2'>Welcome, {user.displayName}</p>
+            <img src="/src/assets/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full max-w-3xl h-60 rounded-lg shadow-lg" />
+         
           <button
             onClick={handleLogOut}
-            className="bg-red-500 text-white p-4 rounded"
+            className="bg-red-500 text-white p-4 rounded-md w-full"
           >
             Log Out
           </button>

@@ -5,26 +5,27 @@ import PostMessage from './components/PostMessage';
 import SignIn from './components/SignIn'; 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, logOut } from './firebase';
+import './App.css';
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
 
   return (
    
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto bg-slate-25 p-4">
         <nav className="mb-4 flex justify-between items-center">
           <ul className="flex space-x-4">
             <li>
-              <Link to="/" className="text-blue-500 hover:underline">Home</Link>
+              <Link to="/" className="text-blue-500  hover:underline">Home</Link>
             </li>
             {user && (
               <li>
-                <Link to="/post" className="text-blue-500 hover:underline">Post Message</Link>
+                <Link to="/post" className="text-blue-500  hover:underline">Post Message</Link>
               </li>
             )}
             {!user && !loading && (
               <li>
-                <Link to="/signin" className="text-blue-500 hover:underline">Sign In</Link>
+                <Link to="/signin" className="text-blue-500  hover:underline">Sign In</Link>
               </li>
             )}
           </ul>
