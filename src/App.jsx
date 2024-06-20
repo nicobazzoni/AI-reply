@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import PostMessage from './components/PostMessage';
+import PostDetail from './components/PostDetail';
 import SignIn from './components/SignIn'; 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, logOut } from './firebase';
@@ -40,6 +41,7 @@ const App = () => {
         </nav>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/post/:postId" element={<PostDetail />} />
           {user && <Route path="/post" element={<PostMessage userId={user.uid} />} />}
           <Route path="/signin" element={<SignIn />} />
         </Routes>

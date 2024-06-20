@@ -7,7 +7,7 @@ const Home = () => {
         <div className="text-center">
           <h1 className="text-5xl mt-3  font-bold mb-6">Welcome to Ai Reply</h1>
           <p className="text-xl mb-8">Your personal AI assistant for engaging conversations.</p>
-          <img src="/src/assets/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full max-w-3xl rounded-lg shadow-lg" />
+          <img src="/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full max-w-3xl rounded-lg shadow-lg" />
         </div>
       </div>
     </div>

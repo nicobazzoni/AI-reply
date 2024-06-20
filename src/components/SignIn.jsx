@@ -41,7 +41,7 @@ const SignIn = () => {
       {user ? (
         <div className='space-y-2'>
            <p className='bg-slate-200 p-1 font-semibold rounded m-2'>Welcome, {user.displayName}</p>
-            <img src="/src/assets/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full max-w-3xl h-60 rounded-lg shadow-lg" />
+            <img src="/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full max-w-3xl h-60 rounded-lg shadow-lg" />
          
           <button
             onClick={handleLogOut}

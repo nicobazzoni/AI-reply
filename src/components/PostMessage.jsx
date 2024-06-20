@@ -3,6 +3,7 @@ import { db, auth } from '../firebase';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const PostMessage = () => {
   const [content, setContent] = useState('');
@@ -19,8 +20,9 @@ const PostMessage = () => {
       querySnapshot.forEach((doc) => {
         const postData = doc.data();
         // Check if the user is recognized before adding the post
-        if (postData.userName) {
+        if (postData.userName ) {
           postsArray.push(postData);
+          console.log('Post Data:', );
         }
       });
       setPosts(postsArray);
@@ -32,11 +34,6 @@ const PostMessage = () => {
     e.preventDefault();
     if (!user) {
       setError('You must be signed in to post.');
-      return;
-    }
-
-    if (!user.displayName) {
-      setError('User not recognized. Please try again.');
       return;
     }
 
@@ -54,6 +51,7 @@ const PostMessage = () => {
         reply: response.data.reply,
         userId: user.uid,
         userName: user.displayName,
+        userPhoto: user.photoURL,
         createdAt: serverTimestamp(),
       };
 
@@ -125,17 +123,29 @@ const PostMessage = () => {
           {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>
       ) : (
-        <p className="text-red-500 mt-4">You must be signed in to post.</p>
+        <p className="text-red-500">You must be signed in to post a message.</p>
       )}
 
-      <div className="timeline">
-        {posts.map((post, index) => (
+      <div className="timeline" >
+      
+        {posts.map((post, index ) => (
+              
           <div key={index} className="bg-white shadow-md rounded-lg p-6 mb-4">
-            <p className="text-gray-800">{post.userName}, says:</p>
-            <p className="text-gray-800 bg-slate-200 ">{post.content}</p>
+            
+            <div className="flex items-center">
+              {console.log("User Photo URL: ", post.userPhoto)}
+              {post.userPhoto && (
+                <img src={post.userPhoto} alt="User" className="w-10 h-10 rounded-full mr-4" />
+              )}
+              <p className="text-gray-800"><strong>{post.userName}</strong></p>
+            </div>
+            <p className="text-gray-800 mt-2"> {post.content}</p>
             {post.reply && (
               <div className="mt-4 text-gray-600"><strong>AI:</strong> {renderReplyWithLinks(post.reply)}</div>
             )}
+            <Link to={`/post/${index}`} className="text-blue-500 hover:underline mt-2 block">
+              View Post Details
+            </Link>
           </div>
         ))}
       </div>
@@ -144,3 +154,4 @@ const PostMessage = () => {
 };
 
 export default PostMessage;
+

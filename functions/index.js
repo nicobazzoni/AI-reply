@@ -68,3 +68,24 @@ exports.postMessage = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+exports.replyToPost = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'POST') {
+            return res.status(405).send('Method Not Allowed');
+        }
+        const { postId, content, userId } = req.body;
+
+        try {
+            const postRef = db.collection('posts').doc(postId).collection('replies').doc();
+            await postRef.set({
+                content,
+                userId,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            res.status(200).send('Reply added successfully');
+        } catch (error) {
+            res.status(500).send('Error adding reply: ' + error.message);
+        }
+    });
+});
