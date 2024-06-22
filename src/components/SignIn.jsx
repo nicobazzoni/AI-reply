@@ -38,11 +38,11 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex items-center  justify-center min-h-screen">
+    <div className="flex items-center justify-center ">
       {user ? (
         <div className='space-y-2'>
-           <p className='bg-slate-200 p-1 font-semibold rounded m-2'>Welcome, {user.displayName}</p>
-            <img src="/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full max-w-3xl h-60 rounded-lg shadow-lg" />
+           <p className='bg-slate-50 p-1 font-semibold top-0 rounded '>Welcome, <span className='text-lg'>{user.displayName}</span> </p>
+            <img src="/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full  rounded-lg shadow-lg" />
          
           <button
             onClick={handleLogOut}

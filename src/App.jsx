@@ -14,20 +14,20 @@ const App = () => {
   return (
    
       <div className="container mx-auto bg-slate-25 p-4">
-        <nav className="mb-4 flex justify-between items-center">
+        <nav className="mb-4 p-2 flex justify-between items-center border-black border-b ">
           <img className="rounded-full h-10 cursor-pointer hover:shadow-lg " src='/aireplylogo.png' />
           <ul className="flex space-x-4">
             <li>
-              <Link to="/" className="text-black  hover:shadow-lg">Home</Link>
+              <Link to="/" className="text-black rounded-full  p-1 hover:shadow-lg">Home</Link>
             </li>
             {user && (
               <li>
-                <Link to="/post" className="text-black  hover:shadow-lg">Post Message</Link>
+                <Link to="/post" className="text-black rounded-full p-1 hover:shadow-lg">Post Message</Link>
               </li>
             )}
             {!user && !loading && (
               <li>
-                <Link to="/signin" className="text-black  hover:shadow-lg">Sign In</Link>
+                <Link to="/signin" className="text-black rounded-full p-1 hover:shadow-lg">Sign In</Link>
               </li>
             )}
           </ul>
