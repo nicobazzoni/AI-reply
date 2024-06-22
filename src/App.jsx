@@ -12,6 +12,7 @@ import './App.css';
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
+  console.log(user, 'yes');
   const navigate = useNavigate();
   
   const handleLogOut = () => {
@@ -22,21 +23,34 @@ const App = () => {
   return (
       <div className="container mx-auto bg-slate-25 p-4">
         <h1 className='font-bold tracking-wide bg-gray-50 w-full'>AI Reply</h1>
+       
         <nav className="mb-4 p-2 flex justify-between items-center border-black border-b ">
-          <ul className="flex space-x-4">
+          <ul className="flex space-x-4 items-center">
             <li>
               <Link to="/" className="text-black rounded-full p-1 hover:shadow-lg">
                 <FontAwesomeIcon icon={faHouse} />
               </Link>
             </li>
             {user && (
-              <li>
-                <Link to="/post" className="text-black rounded-full p-1 hover:shadow-lg"><FontAwesomeIcon icon={faPenToSquare} /></Link>
-              </li>
+              <>
+                <li>
+                  <Link to="/post" className="text-black rounded-full p-1 hover:shadow-lg">
+                    <FontAwesomeIcon icon={faPenToSquare} />
+                  </Link>
+                </li>
+                <li className="flex items-center space-x-2">
+                  {user.photoURL && (
+                    <img src={user.photoURL} alt="User" className="w-8 h-8 rounded-full" />
+                  )}
+                  <span className="text-black font-semibold">{user.displayName}</span>
+                </li>
+              </>
             )}
             {!user && !loading && (
               <li>
-                <Link to="/signin" className="text-black rounded-full p-1 hover:shadow-lg"><FontAwesomeIcon icon={faRightFromBracket}/></Link>
+                <Link to="/signin" className="text-black rounded-full p-1 hover:shadow-lg">
+                  <FontAwesomeIcon icon={faRightFromBracket}/>
+                </Link>
               </li>
             )}
           </ul>

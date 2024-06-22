@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
-import { collection, addDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, getDocs } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, query, where,deleteDoc, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, getDocs } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -78,40 +78,52 @@ const PostMessage = () => {
       setError('You must be signed in to react.');
       return;
     }
-  
+
     try {
-      // Query to check if the reaction already exists
+      // Check if the reaction already exists
       const reactionQuery = query(
         collection(db, 'reactions'),
         where('postId', '==', postId),
         where('userId', '==', user.uid),
         where('type', '==', reactionType)
       );
-  
+
       const existingReactions = await getDocs(reactionQuery);
-  
+      const reactionExists = !existingReactions.empty;
+
       const postRef = doc(db, 'posts', postId);
-  
-      if (existingReactions.empty) {
+      const postSnapshot = await getDoc(postRef);
+      const postData = postSnapshot.data() || {};
+
+      // Initialize reactions if undefined
+      if (!postData.reactions) {
+        postData.reactions = { thought: 0, meh: 0, love: 0 };
+      }
+
+      const currentReactionCount = postData.reactions[reactionType] || 0;
+
+      if (reactionExists) {
+        // If reaction exists, remove it and decrement the count
+        existingReactions.forEach(async (docSnapshot) => {
+          await deleteDoc(doc(db, 'reactions', docSnapshot.id));
+        });
+
+        // Ensure the reaction count doesn't go below zero
+        if (currentReactionCount > 0) {
+          await updateDoc(postRef, {
+            [`reactions.${reactionType}`]: increment(-1),
+          });
+        }
+      } else {
         // If no existing reaction, add new reaction
         await updateDoc(postRef, {
           [`reactions.${reactionType}`]: increment(1),
         });
-  
         await addDoc(collection(db, 'reactions'), {
           postId,
           userId: user.uid,
           type: reactionType,
           createdAt: serverTimestamp(),
-        });
-      } else {
-        // If reaction exists, remove it and decrement the count
-        existingReactions.forEach(async (docSnapshot) => {
-          await deleteDoc(doc(db, 'reactions', docSnapshot.id));
-        });
-  
-        await updateDoc(postRef, {
-          [`reactions.${reactionType}`]: increment(-1),
         });
       }
     } catch (error) {
@@ -119,7 +131,7 @@ const PostMessage = () => {
       setError('Error adding or removing reaction. Please try again.');
     }
   };
-
+  
   const renderReplyWithLinks = (reply) => {
     const urlRegex = /https?:\/\/[^\s]+/g;
     const parts = reply.split(urlRegex);
