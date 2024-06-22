@@ -80,6 +80,7 @@ const PostMessage = () => {
             {part}
             {urls[index] && (
               <a
+              className='block w-full mb-2 p-3 border border-gray-300 rounded bg-gray-50 text-gray-700 break-words hover:bg-gray-200'
                 href={urls[index]}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -143,8 +144,8 @@ const PostMessage = () => {
             {post.reply && (
               <div className="mt-4 text-gray-600"><strong>AI:</strong> {renderReplyWithLinks(post.reply)}</div>
             )}
-            <Link to={`/post/${index}`} className="text-blue-500 hover:underline mt-2 block">
-              View Post Details
+            <Link to={`/post/${index}`} className="bg-blue-100 rounded underline-none mt-2 block  ">
+              reply
             </Link>
           </div>
         ))}

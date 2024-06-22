@@ -14,8 +14,9 @@ const App = () => {
   return (
    
       <div className="container mx-auto bg-slate-25 p-4">
+        <h1 className='font-bold tracking-wide bg-gray-50 w-full'>AI Reply</h1>
         <nav className="mb-4 p-2 flex justify-between items-center border-black border-b ">
-          <img className="rounded-full h-10 cursor-pointer hover:shadow-lg " src='/aireplylogo.png' />
+          {/* <img className="rounded-full h-10 cursor-pointer hover:shadow-lg " src='/aireplylogo.png' /> */}
           <ul className="flex space-x-4">
             <li>
               <Link to="/" className="text-black rounded-full  p-1 hover:shadow-lg">Home</Link>
