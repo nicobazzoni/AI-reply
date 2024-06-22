@@ -15,25 +15,26 @@ const App = () => {
    
       <div className="container mx-auto bg-slate-25 p-4">
         <nav className="mb-4 flex justify-between items-center">
+          <img className="rounded-full h-10 cursor-pointer hover:shadow-lg " src='/aireplylogo.png' />
           <ul className="flex space-x-4">
             <li>
-              <Link to="/" className="text-blue-500  hover:underline">Home</Link>
+              <Link to="/" className="text-black  hover:shadow-lg">Home</Link>
             </li>
             {user && (
               <li>
-                <Link to="/post" className="text-blue-500  hover:underline">Post Message</Link>
+                <Link to="/post" className="text-black  hover:shadow-lg">Post Message</Link>
               </li>
             )}
             {!user && !loading && (
               <li>
-                <Link to="/signin" className="text-blue-500  hover:underline">Sign In</Link>
+                <Link to="/signin" className="text-black  hover:shadow-lg">Sign In</Link>
               </li>
             )}
           </ul>
           {user && (
             <button
               onClick={logOut}
-              className="text-blue-500 hover:underline signout "
+              className="text-black hover:shadow-lg signout "
             >
               Sign Out
             </button>

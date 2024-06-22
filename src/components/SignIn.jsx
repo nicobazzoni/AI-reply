@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { signInWithGoogle, logOut, auth } from '../firebase';
 import { getRedirectResult } from 'firebase/auth';
 
+
 const SignIn = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
