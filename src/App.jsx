@@ -6,6 +6,8 @@ import PostDetail from './components/PostDetail';
 import SignIn from './components/SignIn'; 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, logOut } from './firebase';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouse, faPenToSquare, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 const App = () => {
@@ -19,16 +21,18 @@ const App = () => {
           {/* <img className="rounded-full h-10 cursor-pointer hover:shadow-lg " src='/aireplylogo.png' /> */}
           <ul className="flex space-x-4">
             <li>
-              <Link to="/" className="text-black rounded-full  p-1 hover:shadow-lg">Home</Link>
+            <Link to="/" className="text-black rounded-full p-1 hover:shadow-lg">
+              <FontAwesomeIcon icon={faHouse} />
+            </Link>
             </li>
             {user && (
               <li>
-                <Link to="/post" className="text-black rounded-full p-1 hover:shadow-lg">Post Message</Link>
+                <Link to="/post" className="text-black rounded-full p-1 hover:shadow-lg"><FontAwesomeIcon icon={faPenToSquare} /></Link>
               </li>
             )}
             {!user && !loading && (
               <li>
-                <Link to="/signin" className="text-black rounded-full p-1 hover:shadow-lg">Sign In</Link>
+                <Link to="/signin" className="text-black rounded-full p-1 hover:shadow-lg"><FontAwesomeIcon icon={faRightFromBracket}/></Link>
               </li>
             )}
           </ul>
@@ -37,7 +41,7 @@ const App = () => {
               onClick={logOut}
               className="text-black hover:shadow-lg signout "
             >
-              Sign Out
+            <FontAwesomeIcon icon={faRightFromBracket}/>
             </button>
           )}
         </nav>
