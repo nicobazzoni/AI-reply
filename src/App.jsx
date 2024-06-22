@@ -1,29 +1,33 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
 import PostMessage from './components/PostMessage';
 import PostDetail from './components/PostDetail';
 import SignIn from './components/SignIn'; 
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, logOut } from './firebase';
+import { auth, logOut as firebaseLogOut } from './firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faPenToSquare, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
+  const navigate = useNavigate();
+  
+  const handleLogOut = () => {
+    firebaseLogOut();
+    navigate('/');
+  };
 
   return (
-   
       <div className="container mx-auto bg-slate-25 p-4">
         <h1 className='font-bold tracking-wide bg-gray-50 w-full'>AI Reply</h1>
         <nav className="mb-4 p-2 flex justify-between items-center border-black border-b ">
-          {/* <img className="rounded-full h-10 cursor-pointer hover:shadow-lg " src='/aireplylogo.png' /> */}
           <ul className="flex space-x-4">
             <li>
-            <Link to="/" className="text-black rounded-full p-1 hover:shadow-lg">
-              <FontAwesomeIcon icon={faHouse} />
-            </Link>
+              <Link to="/" className="text-black rounded-full p-1 hover:shadow-lg">
+                <FontAwesomeIcon icon={faHouse} />
+              </Link>
             </li>
             {user && (
               <li>
@@ -38,10 +42,10 @@ const App = () => {
           </ul>
           {user && (
             <button
-              onClick={logOut}
+              onClick={handleLogOut}
               className="text-black hover:shadow-lg signout "
             >
-            <FontAwesomeIcon icon={faRightFromBracket}/>
+              <FontAwesomeIcon icon={faRightFromBracket}/>
             </button>
           )}
         </nav>
@@ -52,7 +56,6 @@ const App = () => {
           <Route path="/signin" element={<SignIn />} />
         </Routes>
       </div>
-   
   );
 };
 

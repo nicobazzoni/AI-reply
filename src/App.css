@@ -87,3 +87,18 @@ p {
 .home-container p {
   margin-top: 1rem;
 }
+
+.custom-list {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+.custom-list li {
+  margin-bottom: 0.5rem;
+}
+.custom-list a {
+  color: #3b82f6; /* Tailwind's blue-500 */
+  text-decoration: none;
+}
+.custom-list a:hover {
+  text-decoration: underline;
+}

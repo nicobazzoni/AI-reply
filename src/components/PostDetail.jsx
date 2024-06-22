@@ -21,7 +21,8 @@ const PostDetail = () => {
         const unsubscribeReplies = onSnapshot(repliesRef, (querySnapshot) => {
             const repliesArray = [];
             querySnapshot.forEach((doc) => {
-                repliesArray.push(doc.data());
+                const replyData = doc.data();
+                repliesArray.push({ id: doc.id, ...replyData });
             });
             setReplies(repliesArray);
         });
@@ -41,7 +42,7 @@ const PostDetail = () => {
             content: replyContent,
             userId: user.uid,
             userName: user.displayName,
-            userPhoto: user.photoURL, // Ensure userPhoto is included
+            userPhoto: user.photoURL,
             createdAt: serverTimestamp(),
         });
         setReplyContent('');

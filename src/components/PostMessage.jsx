@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
-import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, getDocs } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import thought from '/surprised-emoji-svgrepo-com.svg';
+import meh from '/expressionless-svgrepo-com.svg';
+import love from '/in-love-emoji-svgrepo-com.svg';
 
 const PostMessage = () => {
   const [content, setContent] = useState('');
@@ -19,10 +22,9 @@ const PostMessage = () => {
       const postsArray = [];
       querySnapshot.forEach((doc) => {
         const postData = doc.data();
-        // Check if the user is recognized before adding the post
-        if (postData.userName ) {
+        if (postData.userName) {  // Check if the userName exists
+          postData.id = doc.id;  // Set the document ID
           postsArray.push(postData);
-          console.log('Post Data:', );
         }
       });
       setPosts(postsArray);
@@ -53,6 +55,11 @@ const PostMessage = () => {
         userName: user.displayName,
         userPhoto: user.photoURL,
         createdAt: serverTimestamp(),
+        reactions: {
+          thought: 0,
+          meh: 0,
+          love: 0,
+        },
       };
 
       await addDoc(collection(db, 'posts'), newPost);
@@ -63,6 +70,53 @@ const PostMessage = () => {
       setError('Error posting message. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const addReaction = async (postId, reactionType) => {
+    if (!user) {
+      setError('You must be signed in to react.');
+      return;
+    }
+  
+    try {
+      // Query to check if the reaction already exists
+      const reactionQuery = query(
+        collection(db, 'reactions'),
+        where('postId', '==', postId),
+        where('userId', '==', user.uid),
+        where('type', '==', reactionType)
+      );
+  
+      const existingReactions = await getDocs(reactionQuery);
+  
+      const postRef = doc(db, 'posts', postId);
+  
+      if (existingReactions.empty) {
+        // If no existing reaction, add new reaction
+        await updateDoc(postRef, {
+          [`reactions.${reactionType}`]: increment(1),
+        });
+  
+        await addDoc(collection(db, 'reactions'), {
+          postId,
+          userId: user.uid,
+          type: reactionType,
+          createdAt: serverTimestamp(),
+        });
+      } else {
+        // If reaction exists, remove it and decrement the count
+        existingReactions.forEach(async (docSnapshot) => {
+          await deleteDoc(doc(db, 'reactions', docSnapshot.id));
+        });
+  
+        await updateDoc(postRef, {
+          [`reactions.${reactionType}`]: increment(-1),
+        });
+      }
+    } catch (error) {
+      console.error('Error adding or removing reaction:', error);
+      setError('Error adding or removing reaction. Please try again.');
     }
   };
 
@@ -80,7 +134,7 @@ const PostMessage = () => {
             {part}
             {urls[index] && (
               <a
-              className='block w-full mb-2 p-3 border border-gray-300 rounded bg-gray-50 text-gray-700 break-words hover:bg-gray-200'
+                className='block w-full mb-2 p-3 border border-gray-300 rounded bg-gray-50 text-gray-700 break-words hover:bg-gray-200'
                 href={urls[index]}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -127,24 +181,37 @@ const PostMessage = () => {
         <p className="text-red-500">You must be signed in to post a message.</p>
       )}
 
-      <div className="timeline" >
-      
-        {posts.map((post, index ) => (
-              
-          <div key={index} className="bg-white shadow-md rounded-lg p-6 mb-4">
-            
+      <div className="timeline">
+        {posts.map((post) => (
+          <div key={post.id} className="bg-white shadow-md rounded-lg p-6 mb-4">
             <div className="flex items-center">
-              {console.log("User Photo URL: ", post.userPhoto)}
+              {console.log("User Photo URL:", post.userPhoto)}
               {post.userPhoto && (
                 <img src={post.userPhoto} alt="User" className="w-10 h-10 rounded-full mr-4" />
               )}
               <p className="text-gray-800"><strong>{post.userName}</strong></p>
             </div>
-            <p className="text-gray-800 mt-2"> {post.content}</p>
+            <p className="text-gray-800 mt-2">{post.content}</p>
             {post.reply && (
-              <div className="mt-4 text-gray-600"><strong>AI:</strong> {renderReplyWithLinks(post.reply)}</div>
+              <div className="mt-4 customlist list-disc text-gray-600"><strong>AI:</strong> {renderReplyWithLinks(post.reply)}</div>
             )}
-            <Link to={`/post/${index}`} className="bg-blue-100 rounded underline-none mt-2 block  ">
+            <div className="flex space-between items-center space-x-4">
+              <div className='space-x-3'>
+                <button onClick={() => addReaction(post.id, 'thought')} className="p-2 rounded-full bg-gray-50 hover:bg-gray-300">
+                  <img src={thought} alt="Thought Emoji" width="24" height="24" />
+                  {post.reactions?.thought ?? 0}
+                </button>
+                <button onClick={() => addReaction(post.id, 'meh')} className="p-2 rounded-full bg-gray-50 hover:bg-gray-300">
+                  <img src={meh} alt="Meh Emoji" width="24" height="24" />
+                  {post.reactions?.meh ?? 0}
+                </button>
+                <button onClick={() => addReaction(post.id, 'love')} className="p-2 rounded-full bg-gray-50 hover:bg-gray-300">
+                  <img src={love} alt="Love Emoji" width="24" height="24" />
+                  {post.reactions?.love ?? 0}
+                </button>
+              </div>
+            </div>
+            <Link to={`/post/${post.id}`} className="bg-blue-50 rounded underline-none mt-2 block">
               reply
             </Link>
           </div>
@@ -155,4 +222,3 @@ const PostMessage = () => {
 };
 
 export default PostMessage;
-
