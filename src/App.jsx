@@ -10,8 +10,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faPenToSquare, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import './App.css';
 
+import { useLocation } from 'react-router-dom';
+
 const App = () => {
   const [user, loading, error] = useAuthState(auth);
+    const location = useLocation();
   console.log(user, 'yes');
   const navigate = useNavigate();
   
@@ -21,31 +24,36 @@ const App = () => {
   };
 
   return (
-      <div className="container mx-auto bg-slate-25 p-4">
-        <h1 className='font-bold tracking-wide bg-gray-50 w-full'>AI Reply</h1>
+      <div className="container items-center mx-auto bg-slate-25 p-4">
+      
        
         <nav className="mb-4 p-2 flex justify-between items-center border-black border-b ">
           <ul className="flex space-x-4 items-center">
             <li>
               <Link to="/" className="text-black rounded-full p-1 hover:shadow-lg">
-                <FontAwesomeIcon icon={faHouse} />
+              <img src='replybot.png' className='w-10 h-10 object-cover rounded-full shadow-lg ' />
               </Link>
             </li>
             {user && (
               <>
-                <li>
-                  <Link to="/post" className="text-black rounded-full p-1 hover:shadow-lg">
-                    <FontAwesomeIcon icon={faPenToSquare} />
-                  </Link>
-                </li>
+              
                 <li className="flex items-center space-x-2">
                   {user.photoURL && (
                     <img src={user.photoURL} alt="User" className="w-8 h-8 rounded-full" />
                   )}
                   <span className="text-black font-semibold">{user.displayName}</span>
                 </li>
+
               </>
+              
             )}
+             {user && location.pathname !== '/post' && (
+            <li>
+              <Link to="/post" className="text-black rounded-full p-1 hover:shadow-lg">
+                <FontAwesomeIcon icon={faPenToSquare} />
+              </Link>
+            </li>
+          )}
             {!user && !loading && (
               <li>
                 <Link to="/signin" className="text-black rounded-full p-1 hover:shadow-lg">
