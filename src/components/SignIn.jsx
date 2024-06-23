@@ -27,7 +27,7 @@ const SignIn = () => {
     const result = await signInWithGoogle();
     if (result) {
       setError('');
-      navigate('/');
+      navigate('/post');
     } else {
       setError('Sign-in failed. Please try again.');
     }
