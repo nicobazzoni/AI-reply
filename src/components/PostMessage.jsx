@@ -197,9 +197,11 @@ const PostMessage = () => {
         {posts.map((post) => (
           <div key={post.id} className="bg-white shadow-md rounded-lg p-6 mb-4">
             <div className="flex items-center">
-              {console.log("User Photo URL:", post.userPhoto)}
+              {console.log("User Photo URL:", posts)}
               {post.userPhoto && (
-                <img src={post.userPhoto} alt="User" className="w-10 h-10 rounded-full mr-4" />
+               <Link to={`/profile/${post.userId}`}>
+               <img src={post.userPhoto} alt="User" className="w-10 h-10 rounded-full mr-4" />
+             </Link>
               )}
               <p className="text-gray-800"><strong>{post.userName}</strong></p>
             </div>

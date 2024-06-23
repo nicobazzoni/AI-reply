@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { signInWithGoogle, logOut as firebaseLogOut, auth } from '../firebase';
+import { signInWithGoogle, auth } from '../firebase';
 import { getRedirectResult } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 const SignIn = () => {
-  const [user, setUser] = useState(null);
+  const [user] = useAuthState(auth);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -13,32 +14,28 @@ const SignIn = () => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          setUser(result.user);
           setError('');
-          navigate('/'); // Redirect to home after sign-in
         }
       } catch (error) {
         console.error('Error getting redirect result:', error.message);
       }
     };
     checkRedirectResult();
-  }, [navigate]);
+  }, []);
 
   const handleSignIn = async () => {
     const result = await signInWithGoogle();
     if (result) {
-      setUser(result.user);
       setError('');
-      navigate('/post'); // Redirect to home after sign-in
+      navigate('/');
     } else {
       setError('Sign-in failed. Please try again.');
     }
   };
 
-  const handleLogOut = () => {
-    firebaseLogOut();
-    setUser(null);
-    navigate('/'); // Redirect to home after sign-out
+  const handleLogOut = async () => {
+    await logOut();
+    navigate('/');
   };
 
   return (
@@ -46,7 +43,7 @@ const SignIn = () => {
       {user ? (
         <div className='space-y-2'>
           <p className='bg-slate-50 p-1 font-semibold top-0 rounded '>Welcome, <span className='text-lg'>{user.displayName}</span> </p>
-          <img src="/ai-reply graphic.png" alt="Ai Reply Graphic" className="mx-auto w-full rounded-lg shadow-lg" />
+          <img src={user.photoURL} alt="User" className="mx-auto w-full rounded-lg shadow-lg" />
           <button
             onClick={handleLogOut}
             className="bg-red-500 text-white p-4 rounded-md w-full"
