@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import Video from "/rain.mp4";
+import Video from '/rain.mp4';
 
 const Home = () => {
   const [user] = useAuthState(auth);
