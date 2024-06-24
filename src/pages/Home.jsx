@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import Video from "https://www.w3schools.com/howto/rain.mp4";
+import Video from "/rain.mp4";
 
 const Home = () => {
   const [user] = useAuthState(auth);
@@ -19,9 +19,9 @@ const Home = () => {
   return (
     <div className="relative h-screen overflow-hidden bg-black">
       <div
-        className="absolute top-0 left-0 w-full h-full object-cover"
+        className="absolute top-0 left-0 w-full h-full"
         dangerouslySetInnerHTML={{
-          __html: `<video className="w-full h-full object-cover" autoplay loop muted playsinline>
+          __html: `<video style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;" autoplay loop muted playsinline>
             <source src="${Video}" type="video/mp4" />
             Your browser does not support the video tag.
           </video>`,
