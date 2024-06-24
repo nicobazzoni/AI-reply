@@ -23,6 +23,7 @@ const App = () => {
 
   return (
     <div className="container items-center mx-auto bg-slate-25 p-4">
+      <img src='/header.svg' className='h-12 mx-auto' />
       <nav className="mb-4 p-2 flex justify-between items-center border-black border-b ">
         <ul className="flex space-x-4 items-center">
           <li>

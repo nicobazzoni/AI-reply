@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
@@ -15,17 +15,31 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    const video = document.getElementById('bgVideo');
+    video.addEventListener('loadeddata', () => {
+      video.play().catch(() => {
+        video.muted = true;
+        video.play();
+      });
+    });
+  }, []);
+
   return (
     <div className="relative h-screen overflow-hidden bg-black">
       {/* Video background */}
       <video
+        id="bgVideo"
         className="absolute top-0 left-0 w-full h-full object-cover"
         src="https://www.w3schools.com/howto/rain.mp4" // Replace with your techno-future video URL
         autoPlay
         loop
         muted
         playsInline
-      />
+        controls={false}
+      >
+        Your browser does not support the video tag.
+      </video>
 
       {/* Overlay with landing graphic */}
       <div className="relative z-10 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
