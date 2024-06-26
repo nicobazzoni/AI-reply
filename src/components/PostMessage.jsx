@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
-import { collection, addDoc, doc, getDoc, query, where, deleteDoc, orderBy, onSnapshot, serverTimestamp, updateDoc, increment, getDocs } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, query, where, deleteDoc, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import thought from '/surprised-emoji-svgrepo-com.svg';
-import meh from '/expressionless-svgrepo-com.svg';
-import love from '/in-love-emoji-svgrepo-com.svg';
-
+import ReactionButtons from './ReactionButtons';
 
 const PostMessage = () => {
   const [content, setContent] = useState('');
@@ -19,16 +16,14 @@ const PostMessage = () => {
   const [user] = useAuthState(auth);
   const functions = getFunctions();
 
-
-
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const postsArray = [];
       querySnapshot.forEach((doc) => {
         const postData = doc.data();
-        if (postData.userName) {  // Check if the userName exists
-          postData.id = doc.id;  // Set the document ID
+        if (postData.userName) {
+          postData.id = doc.id;
           postsArray.push(postData);
         }
       });
@@ -36,6 +31,16 @@ const PostMessage = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  const handleDelete = async (postId) => {
+    const deletePost = httpsCallable(functions, 'deletePost');
+    try {
+      await deletePost({ postId, userId: user.uid });
+      console.log('Post deleted successfully');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,60 +83,6 @@ const PostMessage = () => {
     }
   };
 
-  const addReaction = async (postId, reactionType) => {
-    if (!user) {
-      setError('You must be signed in to react.');
-      return;
-    }
-
-    try {
-      const reactionQuery = query(
-        collection(db, 'reactions'),
-        where('postId', '==', postId),
-        where('userId', '==', user.uid),
-        where('type', '==', reactionType)
-      );
-
-      const existingReactions = await getDocs(reactionQuery);
-      const reactionExists = !existingReactions.empty;
-
-      const postRef = doc(db, 'posts', postId);
-      const postSnapshot = await getDoc(postRef);
-      const postData = postSnapshot.data() || {};
-
-      if (!postData.reactions) {
-        postData.reactions = { thought: 0, meh: 0, love: 0 };
-      }
-
-      const currentReactionCount = postData.reactions[reactionType] || 0;
-
-      if (reactionExists) {
-        existingReactions.forEach(async (docSnapshot) => {
-          await deleteDoc(doc(db, 'reactions', docSnapshot.id));
-        });
-
-        if (currentReactionCount > 0) {
-          await updateDoc(postRef, {
-            [`reactions.${reactionType}`]: increment(-1),
-          });
-        }
-      } else {
-        await updateDoc(postRef, {
-          [`reactions.${reactionType}`]: increment(1),
-        });
-        await addDoc(collection(db, 'reactions'), {
-          postId,
-          userId: user.uid,
-          type: reactionType,
-          createdAt: serverTimestamp(),
-        });
-      }
-    } catch (error) {
-      console.error('Error adding or removing reaction:', error);
-      setError('Error adding or removing reaction. Please try again.');
-    }
-  };
-
   const renderReplyWithLinks = (reply) => {
     const urlRegex = /https?:\/\/[^\s]+/g;
     const parts = reply.split(urlRegex);
@@ -160,17 +111,6 @@ const PostMessage = () => {
       </p>
     );
   };
-
-  const handleDelete = async (postId, userId) => {
-    const deletePost = httpsCallable(functions, 'deletePost');
-    try {
-      await deletePost({ postId, userId });
-      console.log('Post deleted successfully');
-    } catch (error) {
-      console.error('Error deleting post:', error);
-    }
-  };
-  
 
   return (
     <div className="container mx-auto p-4">
@@ -219,33 +159,13 @@ const PostMessage = () => {
             {post.reply && (
               <div className="mt-4 customlist list-disc text-gray-600"><strong>AI:</strong> {renderReplyWithLinks(post.reply)}</div>
             )}
-            <div className="flex space-between items-center space-x-4">
-              <div className='space-x-3'>
-                <button onClick={() => addReaction(post.id, 'thought')} className="p-2 rounded-full bg-gray-50 hover:bg-gray-300">
-                  <img src={thought} alt="Thought Emoji" width="24" height="24" />
-                  {post.reactions?.thought ?? 0}
-                </button>
-                <button onClick={() => addReaction(post.id, 'meh')} className="p-2 rounded-full bg-gray-50 hover:bg-gray-300">
-                  <img src={meh} alt="Meh Emoji" width="24" height="24" />
-                  {post.reactions?.meh ?? 0}
-                </button>
-                <button onClick={() => addReaction(post.id, 'love')} className="p-2 rounded-full bg-gray-50 hover:bg-gray-300">
-                  <img src={love} alt="Love Emoji" width="24" height="24" />
-                  {post.reactions?.love ?? 0}
-                </button>
-              </div>
-            </div>
+            <ReactionButtons postId={post.id} reactions={post.reactions} />
+            {user && post.userId === user.uid && (
+              <button onClick={() => handleDelete(post.id)} className="mt-2 bg-red-500 text-white rounded p-2">Delete</button>
+            )}
             <Link to={`/post/${post.id}`} className="bg-blue-50 rounded underline-none mt-2 block">
               reply
             </Link>
-                        {user && post.userId === user.uid && (
-              <button
-                onClick={() => handleDelete(post.id, user.uid)}
-                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 mt-4"
-              >
-                Delete
-              </button>
-            )}
           </div>
         ))}
       </div>
@@ -254,5 +174,4 @@ const PostMessage = () => {
 
 }
 
-
-export default PostMessage 
+export default PostMessage
