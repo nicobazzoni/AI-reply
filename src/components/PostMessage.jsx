@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
-import { collection, addDoc, doc, getDoc, query, where, deleteDoc, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import ReactionButtons from './ReactionButtons';
+import ReplyWithLinks from './RenderReplyWithLinks'; // Import the new component
 
 const PostMessage = () => {
   const [content, setContent] = useState('');
@@ -83,42 +84,13 @@ const PostMessage = () => {
     }
   };
 
-  const renderReplyWithLinks = (reply) => {
-    const urlRegex = /https?:\/\/[^\s]+/g;
-    const parts = reply.split(urlRegex);
-    const urls = reply.match(urlRegex);
-
-    if (!urls) return <p>{reply}</p>;
-
-    return (
-      <p>
-        {parts.map((part, index) => (
-          <React.Fragment key={index}>
-            {part}
-            {urls[index] && (
-              <a
-                className='block w-full mb-2 p-3 border border-gray-300 rounded bg-gray-50 text-gray-700 break-words hover:bg-gray-200'
-                href={urls[index]}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'blue', textDecoration: 'underline' }}
-              >
-                {urls[index]}
-              </a>
-            )}
-          </React.Fragment>
-        ))}
-      </p>
-    );
-  };
-
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-2 w-full">
       {user ? (
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div className="bg-white shadow-md rounded-lg p-4 mb-6 w-full">
           <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
             <textarea
-              className="p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="p-4 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your post here..."
@@ -127,7 +99,7 @@ const PostMessage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full"
               style={{
                 boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
                 transition: 'box-shadow 0.3s ease-in-out',
@@ -144,9 +116,9 @@ const PostMessage = () => {
         <p className="text-red-500">You must be signed in to post a message.</p>
       )}
   
-      <div className="timeline">
+      <div className="timeline w-full">
         {posts.map((post) => (
-          <div key={post.id} className="bg-white shadow-md rounded-lg p-6 mb-4">
+          <div key={post.id} className="bg-white shadow-md rounded-lg p-6 mb-4 w-full">
             <div className="flex items-center">
               {post.userPhoto && (
                 <Link to={`/profile/${post.userId}`}>
@@ -157,11 +129,11 @@ const PostMessage = () => {
             </div>
             <p className="text-gray-800 mt-2">{post.content}</p>
             {post.reply && (
-              <div className="mt-4 customlist list-disc text-gray-600"><strong>AI:</strong> {renderReplyWithLinks(post.reply)}</div>
+              <div className="mt-4 customlist list-disc text-gray-600"><strong>AI:</strong> <ReplyWithLinks reply={post.reply} /></div>
             )}
             <ReactionButtons postId={post.id} reactions={post.reactions} />
             {user && post.userId === user.uid && (
-              <button onClick={() => handleDelete(post.id)} className="mt-2 bg-red-500 text-white rounded p-2">Delete</button>
+              <button onClick={() => handleDelete(post.id)} className="mt-2 bg-red-500 text-white rounded p-2 w-full">Delete</button>
             )}
             <Link to={`/post/${post.id}`} className="bg-blue-50 rounded underline-none mt-2 block">
               reply
@@ -171,7 +143,6 @@ const PostMessage = () => {
       </div>
     </div>
   );
-
 }
 
-export default PostMessage
+export default PostMessage;

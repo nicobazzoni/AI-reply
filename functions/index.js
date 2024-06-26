@@ -97,7 +97,7 @@ exports.postMessage = functions.https.onRequest((req, res) => {
       const aiResponse = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: `Respond to this post in an expressive and pertinent way and include links to relevant topics: "${content}"` }],
-        max_tokens: 150,
+        max_tokens: 300, // Increase this value to allow longer responses
       });
 
       const reply = aiResponse.choices[0].message.content.trim();
