@@ -31,6 +31,10 @@ const Profile = () => {
     }
   };
 
+  
+
+
+
   return (
     <div className="container mx-auto p-4">
       <div className="bg-white shadow-md rounded-lg p-6 mb-6 flex items-center space-x-4">

@@ -9,6 +9,7 @@ import { auth, logOut as firebaseLogOut } from './firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faPenToSquare, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import Profile from './components/Profile';
+import NewsFeed from "./pages/NewsFeed";
 import './App.css';
 
 const App = () => {
@@ -73,6 +74,7 @@ const App = () => {
         {user && <Route path="/post" element={<PostMessage userId={user.uid} />} />}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/profile/:userId" element={<Profile />} />
+        <Route path="/newsfeed" element={<NewsFeed />} />
       </Routes>
     </div>
   );

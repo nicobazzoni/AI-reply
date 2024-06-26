@@ -10,6 +10,56 @@ const openai = new OpenAI({
   apiKey: functions.config().openai.key,
 });
 
+async function generateNews() {
+  try {
+    const newsResponse = await axios.get(NEWS_API_URL);
+    const articles = newsResponse.data.articles;
+
+    for (const article of articles) {
+      const { title, description, urlToImage, publishedAt } = article;
+
+      const aiResponse = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'system', content: 'Provide a detailed and insightful analysis of this news article.' }, { role: 'user', content: description }],
+        max_tokens: 150,
+      });
+
+      const commentary = aiResponse.choices[0].message.content.trim();
+
+      await db.collection('news').add({
+        title,
+        description,
+        urlToImage,
+        publishedAt,
+        commentary,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    console.log('News articles and AI opinions successfully added to Firestore.');
+    return null;
+  } catch (error) {
+    console.error('Error generating news:', error);
+    throw new functions.https.HttpsError('internal', 'Unable to generate news');
+  }
+}
+
+// Scheduled function to run every 24 hours
+exports.scheduledGenerateNews = functions.pubsub.schedule('every 24 hours').onRun(generateNews);
+
+// HTTP function to trigger manually
+exports.generateNewsNowHttp = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      await generateNews();
+      res.status(200).send('News generation triggered successfully.');
+    } catch (error) {
+      console.error('Error triggering news generation:', error);
+      res.status(500).send('Error triggering news generation.');
+    }
+  });
+});
+
 exports.postMessage = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     if (req.method === 'OPTIONS') {
@@ -69,6 +119,42 @@ exports.postMessage = functions.https.onRequest((req, res) => {
   });
 });
 
+exports.deletePost = functions.https.onCall(async (data, context) => {
+  const { postId, userId } = data;
+
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'Request had invalid credentials.');
+  }
+
+  if (!postId || !userId) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with the correct arguments.');
+  }
+
+  try {
+    const postRef = db.collection('posts').doc(postId);
+    const postSnapshot = await postRef.get();
+
+    if (!postSnapshot.exists) {
+      throw new functions.https.HttpsError('not-found', 'Post not found.');
+    }
+
+    const post = postSnapshot.data();
+
+    if (post.userId !== userId) {
+      throw new functions.https.HttpsError('permission-denied', 'User is not authorized to delete this post.');
+    }
+
+    await postRef.delete();
+
+    return { message: 'Post deleted successfully.' };
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    throw new functions.https.HttpsError('unknown', 'An unknown error occurred.');
+  }
+});
+
+
+
 exports.replyToPost = functions.https.onRequest((req, res) => {
     cors(req, res, async () => {
         if (req.method !== 'POST') {
@@ -89,3 +175,5 @@ exports.replyToPost = functions.https.onRequest((req, res) => {
         }
     });
 });
+
+

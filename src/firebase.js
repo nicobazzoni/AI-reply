@@ -56,4 +56,4 @@ const logOut = async () => {
   }
 };
 
-export { auth, db, signInWithGoogle, logOut };
+export {app, auth, db, signInWithGoogle, logOut };
