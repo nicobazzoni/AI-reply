@@ -33,6 +33,8 @@ const PostMessage = () => {
     return () => unsubscribe();
   }, []);
 
+  console.log(user, 'user')
+
   const handleDelete = async (postId) => {
     const deletePost = httpsCallable(functions, 'deletePost');
     try {

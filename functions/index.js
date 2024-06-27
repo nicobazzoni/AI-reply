@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const OpenAI = require('openai');
 const cors = require('cors')({ origin: true });
 
+
 admin.initializeApp();
 const db = admin.firestore();
 
@@ -12,31 +13,43 @@ const openai = new OpenAI({
 
 async function generateNews() {
   try {
-    const newsResponse = await axios.get(NEWS_API_URL);
-    const articles = newsResponse.data.articles;
+    const topics = [
+      'Art',
+      'Politics',
+      'Technology',
+      'Cultural Trends',
+      'Environmental Issues'
+    ];
 
-    for (const article of articles) {
-      const { title, description, urlToImage, publishedAt } = article;
+    for (const topic of topics) {
+      const prompt = `Write a short, witty, and informative comment on a recent event related to ${topic}. Aim for unique insights and avoid overused figures. Highlight interesting and lesser-known aspects.`;
 
       const aiResponse = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'system', content: 'Provide a detailed and insightful analysis of this news article.' }, { role: 'user', content: description }],
-        max_tokens: 150,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 100,
       });
 
-      const commentary = aiResponse.choices[0].message.content.trim();
+      const comment = aiResponse.choices[0].message.content.trim();
+
+      const imagePrompt = `Create a detailed, high-quality image that visually represents a recent event in ${topic}. Focus on unique and visually compelling elements that accurately illustrate the topic.`;
+      const imageSearchResponse = await openai.images.generate({
+        prompt: imagePrompt,
+        n: 1,
+        size: "256x256",
+      });
+
+      const imageUrl = imageSearchResponse.data[0].url;
 
       await db.collection('news').add({
-        title,
-        description,
-        urlToImage,
-        publishedAt,
-        commentary,
+        topic,
+        comment,
+        urlToImage: imageUrl,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     }
 
-    console.log('News articles and AI opinions successfully added to Firestore.');
+    console.log('AI-generated news comments successfully added to Firestore.');
     return null;
   } catch (error) {
     console.error('Error generating news:', error);
@@ -59,7 +72,6 @@ exports.generateNewsNowHttp = functions.https.onRequest((req, res) => {
     }
   });
 });
-
 exports.postMessage = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     if (req.method === 'OPTIONS') {
