@@ -12,55 +12,45 @@ const openai = new OpenAI({
 });
 
 async function generateNews() {
-  try {
-    const topics = [
-      'Art',
-      'Politics',
-      'Technology',
-      'Cultural Trends',
-      'Environmental Issues'
-    ];
+  const topics = [
+    'Climate Change',
+    'Economic Trends',
+    'Technological Innovations',
+    'Global Conflicts',
+    'Cultural Shifts',
+    'Health and Wellness',
+    'Political Developments'
+  ];
 
-    for (const topic of topics) {
-      const prompt = `Write a short, witty, and informative comment on a recent event related to ${topic}. Aim for unique insights and avoid overused figures. Highlight interesting and lesser-known aspects.`;
+  for (const topic of topics) {
+    const prompt = `Write a quick, witty comment about ${topic} and include a relevant URL to a credible source for more information.`;
 
-      const aiResponse = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 100,
-      });
+    const aiResponse = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 150,
+    });
 
-      const comment = aiResponse.choices[0].message.content.trim();
+    const articleContent = aiResponse.choices[0].message.content.trim();
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urlMatch = articleContent.match(urlRegex);
+    const url = urlMatch ? urlMatch[0] : '';
 
-      const imagePrompt = `Create a detailed, high-quality image that visually represents a recent event in ${topic}. Focus on unique and visually compelling elements that accurately illustrate the topic.`;
-      const imageSearchResponse = await openai.images.generate({
-        prompt: imagePrompt,
-        n: 1,
-        size: "256x256",
-      });
-
-      const imageUrl = imageSearchResponse.data[0].url;
-
+    // Ensure the URL is valid and relevant
+    if (url) {
       await db.collection('news').add({
         topic,
-        comment,
-        urlToImage: imageUrl,
+        content: articleContent.replace(url, '').trim(),
+        url,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
+    } else {
+      console.log(`No valid URL found for topic: ${topic}`);
     }
-
-    console.log('AI-generated news comments successfully added to Firestore.');
-    return null;
-  } catch (error) {
-    console.error('Error generating news:', error);
-    throw new functions.https.HttpsError('internal', 'Unable to generate news');
   }
+  console.log('AI-generated news articles successfully added to Firestore.');
 }
 
-// Scheduled function to run every 24 hours
-exports.scheduledGenerateNews = functions.pubsub.schedule('every 24 hours').onRun(generateNews);
-
-// HTTP function to trigger manually
 exports.generateNewsNowHttp = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     try {
@@ -72,6 +62,7 @@ exports.generateNewsNowHttp = functions.https.onRequest((req, res) => {
     }
   });
 });
+
 exports.postMessage = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     if (req.method === 'OPTIONS') {
