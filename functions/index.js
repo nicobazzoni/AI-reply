@@ -11,6 +11,8 @@ const openai = new OpenAI({
   apiKey: functions.config().openai.key,
 });
 
+
+
 async function generateNews() {
   const topics = [
     'Climate Change',
@@ -23,7 +25,7 @@ async function generateNews() {
   ];
 
   for (const topic of topics) {
-    const prompt = `Write a quick, witty comment about ${topic} and include a relevant URL to a credible source for more information.`;
+    const prompt = `Write a brief, informative news snippet about ${topic} and include a relevant URL to a credible source.`;
 
     const aiResponse = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',

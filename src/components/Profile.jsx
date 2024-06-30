@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getUserProfile, saveUserProfile } from '../firebaseFunctions';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
+import AIInsights from './AIInsights';
 
 const Profile = () => {
   const { userId } = useParams();
@@ -30,10 +31,6 @@ const Profile = () => {
       getUserProfile(userId).then((data) => setProfileData(data));
     }
   };
-
-  
-
-
 
   return (
     <div className="container mx-auto p-4">
@@ -73,7 +70,10 @@ const Profile = () => {
             </div>
           )}
         </div>
+        
       </div>
+
+   
     </div>
   );
 };
